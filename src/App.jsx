@@ -6,6 +6,8 @@ import buyNemoIcon from './assets/Buy_nemo.svg';
 import buyBubleIcon from './assets/Buy_buble.svg';
 import buyDoriIcon from './assets/Buy_dori.svg';
 import nemoImg from './assets/Nemo.svg';
+import doriImg from './assets/Dori.svg';
+import bubleImg from './assets/Buble.svg'; // tambahkan ini
 
 function getRandomPosition() {
   return {
@@ -18,19 +20,28 @@ export default function AquariumGame() {
   const [count, setCount] = useState(0);
   const [isHover, setIsHover] = useState(false);
   const [nemos, setNemos] = useState([]);
+  const [doris, setDoris] = useState([]);
+  const [bubles, setBubles] = useState([]);
 
   const handleClick = () => {
-    setCount(count + 1);
+    setCount((prev) => prev + 1);
   };
 
-  const buyNemo = () => {
-    if (count >= 10) {
+  const buyFish = (type) => {
+    if (type === 'nemo' && count >= 10) {
       setCount(count - 10);
-      const newNemo = {
-        id: Date.now(),
-        position: getRandomPosition(),
-      };
-      setNemos([...nemos, newNemo]);
+      const newFish = { id: Date.now(), position: getRandomPosition() };
+      setNemos((prev) => [...prev, newFish]);
+    }
+    if (type === 'dori' && count >= 30) {
+      setCount(count - 30);
+      const newFish = { id: Date.now(), position: getRandomPosition() };
+      setDoris((prev) => [...prev, newFish]);
+    }
+    if (type === 'buble' && count >= 15) {
+      setCount(count - 15);
+      const newBuble = { id: Date.now(), left: Math.random() * 90 + '%' };
+      setBubles((prev) => [...prev, newBuble]);
     }
   };
 
@@ -44,16 +55,33 @@ export default function AquariumGame() {
         <h1 className="text-white text-4xl font-bold drop-shadow">Touch the Seaweed</h1>
         <p className="text-white text-2xl mt-2">{count.toString().padStart(6, '0')}</p>
       </div>
-       {/* Buy Buttons */}
-       <div className="flex justify-center gap-8 mb-4">
+
+      {/* Buy Buttons */}
+      <div className="flex justify-center gap-8 mb-4">
         <img
           src={buyNemoIcon}
           alt="Buy Nemo"
-          className="w-16 cursor-pointer hover:scale-110 transition-transform"
-          onClick={buyNemo}
+          className={`w-16 cursor-pointer transition-transform ${
+            count >= 10 ? 'hover:scale-110' : 'opacity-50 cursor-not-allowed'
+          }`}
+          onClick={() => count >= 10 && buyFish('nemo')}
         />
-        <img src={buyBubleIcon} alt="Buy Buble" className="w-16 opacity-50" />
-        <img src={buyDoriIcon} alt="Buy Dori" className="w-16 opacity-50" />
+        <img
+          src={buyBubleIcon}
+          alt="Buy Buble"
+          className={`w-16 cursor-pointer transition-transform ${
+            count >= 15 ? 'hover:scale-110' : 'opacity-50 cursor-not-allowed'
+          }`}
+          onClick={() => count >= 15 && buyFish('buble')}
+        />
+        <img
+          src={buyDoriIcon}
+          alt="Buy Dori"
+          className={`w-16 cursor-pointer transition-transform ${
+            count >= 30 ? 'hover:scale-110' : 'opacity-50 cursor-not-allowed'
+          }`}
+          onClick={() => count >= 30 && buyFish('dori')}
+        />
       </div>
 
       {/* Seaweed Button */}
@@ -68,20 +96,37 @@ export default function AquariumGame() {
         />
       </div>
 
-      {/* Nemo Container */}
+      {/* Fish & Buble Container */}
       <div className="grid grid-cols-5 grid-rows-5 gap-4 w-full h-64 relative">
         {nemos.map((nemo) => (
           <div
             key={nemo.id}
-            className={`animate-bounce-slow flex justify-center items-center`}
+            className="animate-bounce-slow flex justify-center items-center"
             style={{ gridColumn: nemo.position.left + 1, gridRow: nemo.position.top + 1 }}
           >
             <img src={nemoImg} alt="Nemo" className="w-16 h-16" />
           </div>
         ))}
+        {doris.map((dori) => (
+          <div
+            key={dori.id}
+            className="animate-bounce-slow flex justify-center items-center"
+            style={{ gridColumn: dori.position.left + 1, gridRow: dori.position.top + 1 }}
+          >
+            <img src={doriImg} alt="Dori" className="w-16 h-16" />
+          </div>
+        ))}
+        {bubles.map((buble) => (
+          <img
+            key={buble.id}
+            src={bubleImg}
+            alt="Buble"
+            className="w-8 absolute animate-buble"
+            style={{ bottom: 0, left: buble.left }}
+          />
+        ))}
       </div>
 
-     
       {/* Custom Animation */}
       <style>{`
         @keyframes bounce-slow {
@@ -90,6 +135,14 @@ export default function AquariumGame() {
         }
         .animate-bounce-slow {
           animation: bounce-slow 3s infinite ease-in-out;
+        }
+
+        @keyframes buble-rise {
+          0% { bottom: 0; opacity: 1; }
+          100% { bottom: 100%; opacity: 0; }
+        }
+        .animate-buble {
+          animation: buble-rise 4s linear forwards;
         }
       `}</style>
     </div>
